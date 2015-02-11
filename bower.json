@@ -1,0 +1,26 @@
+{
+  "name": "huddlejs",
+  "version": "0.0.1",
+  "homepage": "https://github.com/techmuch/huddlejs",
+  "authors": [
+    "David Fullmer <david.d.fullmer@gmail.com>"
+  ],
+  "description": "huddle JavaScript Library and Application Component Library",
+  "main": "huddle.js",
+  "keywords": [
+    "huddle",
+    "api",
+    "components"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.3"
+  }
+}
