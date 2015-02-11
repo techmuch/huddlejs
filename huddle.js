@@ -1,12 +1,12 @@
-define([], function() {
+define([
+	"bower_modules/jquery/dist/jquery",
+	"bower_modules/davclient/bin/davclient",
+	"bower_modules/huddlejs/bin/api.js"
 
-  function Huddle() {
-  }
+], function($, dav, api) {
 
-  Huddle.prototype.hi = function() {
-  	alert('hi')
-  };
+	api.prototype = dav;
 
-  return new Huddle();
+	return api
 
 });
