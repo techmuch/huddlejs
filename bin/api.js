@@ -1,4 +1,4 @@
-define([], function() {
+define(['jquery', 'davclient'], function($, dav) {
 	/*
 	This is a full javascript library implement of the huddle API 
 
@@ -435,7 +435,9 @@ define([], function() {
 						console.log(data);
 						return data;
 					});
-			}
+			},
+
+			dav: dav
 		}
 	}());
 
