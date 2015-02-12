@@ -1,4 +1,10 @@
-define(['jquery', 'davclient'], function($, dav) {
+define([
+	'jquery',
+	'davclient'
+], function($, dav) {
+
+
+
 	/*
 	This is a full javascript library implement of the huddle API 
 
@@ -416,6 +422,72 @@ define(['jquery', 'davclient'], function($, dav) {
 					})
 			},
 
+			listAppsInProject: function(projectId) {
+				var finalPromise = new $.Deferred()
+				var path = '/data/' + projectId + '/apps';
+				var apps = [];
+				var promises = [];
+				huddle.propfind(path).then(function(paths) {
+					for (var i = paths.content.items.length - 1; i >= 0; i--) {
+						currentPromise = huddle.get(path + '/' + paths.content.items[i].path[6] + '/manifest.json')
+						currentPromise.then(function(manifestFile) {
+							apps.push(JSON.parse(manifestFile.content))
+						})
+						promises.push(currentPromise)
+					}
+				}).then(function() {
+					return $.when.apply($, promises).then(function() {
+						console.log(apps);
+						finalPromise.resolve(apps);
+					})
+				})
+				return finalPromise.promise()
+			},
+
+			listDatasetsInProject: function(projectId) {
+				var finalPromise = new $.Deferred()
+				var path = '/data/' + projectId + '/datasets';
+				var apps = [];
+				var promises = [];
+				huddle.propfind(path).then(function(paths) {
+					for (var i = paths.content.items.length - 1; i >= 0; i--) {
+						currentPromise = huddle.get(path + '/' + paths.content.items[i].path[6] + '/manifest.json')
+						currentPromise.then(function(manifestFile) {
+							apps.push(JSON.parse(manifestFile.content))
+						})
+						promises.push(currentPromise)
+					}
+				}).then(function() {
+					return $.when.apply($, promises).then(function() {
+						console.log(apps);
+						finalPromise.resolve(apps);
+					})
+				})
+				return finalPromise.promise()
+			},
+
+			ls: function(projectId, path) {
+				var path = '/data/' + projectId + '/' + path;
+				return huddle.propfind(path).then(function(results) {
+					console.log(results)
+				})
+			},
+
+			read: function(projectId, path) {
+				var path = '/data/' + projectId + '/' + path;
+				return huddle.get(path).then(function(results) {
+					console.log(results)
+				})
+			},
+
+			write: function(projectId, path, data, etag) {
+				var etag = etag || null
+				var path = '/data/' + projectId + '/' + path;
+				return huddle.put(path, data).then(function(results) {
+					console.log(results)
+				})
+			},			
+
 			ajax: function(ajaxObject, etag) {
 
 				ajaxObject.headers = typeof ajaxObject.headers === "undefined" ? {} : ajaxObject.headers;
@@ -437,7 +509,93 @@ define(['jquery', 'davclient'], function($, dav) {
 					});
 			},
 
-			dav: dav
+			dav: dav,
+
+			propfind: function(path, depth) {
+				var depth = depth || 1
+				var promise = new $.Deferred();
+				huddle.dav.PROPFIND(path, function(status, statusText, content, headers) {
+					if (content !== undefined) {
+						var result = {
+							status: status,
+							statusText: statusText,
+							content: content,
+							headers: headers
+						}
+						console.log(result);
+						promise.resolve(result);
+					}
+				}, this, depth);
+				return promise.promise()
+			},
+
+			get: function(path) {
+				var promise = new $.Deferred();
+				huddle.dav.GET(path, function(status, statusText, content, headers) {
+					if (content !== undefined) {
+						var result = {
+							status: status,
+							statusText: statusText,
+							content: content,
+							headers: headers
+						}
+						console.log(result);
+						promise.resolve(result);
+					}
+				}, this, 1);
+				return promise.promise()
+			},
+
+			put: function(path, data) {
+				var promise = new $.Deferred();
+				huddle.dav.PUT(path, data, function(status, statusText, content, headers) {
+					if (content !== undefined) {
+						var result = {
+							status: status,
+							statusText: statusText,
+							content: content,
+							headers: headers
+						}
+						console.log(result);
+						promise.resolve(result);
+					}
+				}, this, 1);
+				return promise.promise()
+			},
+
+			post: function(path, data) {
+				var promise = new $.Deferred();
+				huddle.dav.POST(path, data, function(status, statusText, content, headers) {
+					if (content !== undefined) {
+						var result = {
+							status: status,
+							statusText: statusText,
+							content: content,
+							headers: headers
+						}
+						console.log(result);
+						promise.resolve(result);
+					}
+				}, this, 1);
+				return promise.promise()
+			},
+
+			delete: function(path) {
+				var promise = new $.Deferred();
+				huddle.dav.DELETE(path, function(status, statusText, content, headers) {
+					if (content !== undefined) {
+						var result = {
+							status: status,
+							statusText: statusText,
+							content: content,
+							headers: headers
+						}
+						console.log(result);
+						promise.resolve(result);
+					}
+				}, this, 1);
+				return promise.promise()
+			}
 		}
 	}());
 
