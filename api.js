@@ -486,7 +486,7 @@ define([
 				return huddle.put(path, data).then(function(results) {
 					console.log(results)
 				})
-			},			
+			},
 
 			ajax: function(ajaxObject, etag) {
 
