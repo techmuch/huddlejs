@@ -1,0 +1,3 @@
+[submodule "huddle-components"]
+	path = huddle-components
+	url = git@github.com:techmuch/huddle-components.git
