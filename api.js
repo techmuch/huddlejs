@@ -37,36 +37,48 @@ define([
 
 
 
-	huddle = (function() {
-		return {
-			queryParam: function() {
-				var o = {};
-				var s = location.search.split('?');
-				for (var i = 1; i < s.length; i++) {
-					var a = s[i].split('&');
-					for (var j = 0; j < a.length; j++) {
-						var v = a[j].split('=');
-						o[v[0]] = v[1];
-					};
-				};
-				return o;
-			},
+	Huddle = function(host) {
+			var self = this;
+			var huddle = this;
+			var queryObjectCache = null;
 
-			getDefaultDatasetManifest: function() {
+			var huddleHost = host || 'https://huddle2.asdl.ae.gatech.edu';
+
+			self.queryParam = function() {
+				if(queryObjectCache === null){
+					var o = {};
+					var s = location.search.split('?');
+					for (var i = 1; i < s.length; i++) {
+						var a = s[i].split('&');
+						for (var j = 0; j < a.length; j++) {
+							var v = a[j].split('=');
+							o[v[0]] = v[1];
+						};
+					};
+					queryObjectCache = o;
+					return o;
+				}
+				else{
+					return queryObjectCache;
+				}
+				
+			};
+
+			self.getDefaultDatasetManifest = function() {
 				return huddle.ajax({
 					url: huddle.queryParam().resource_url,
 					type: "GET"
 				})
-			},
+			};
 
-			sessions: function() {
+			self.sessions = function() {
 				return huddle.ajax({
 					url: "/session/active",
 					type: "GET"
 				})
-			},
+			};
 
-			login: function(username, password) {
+			self.login = function(username, password) {
 				return huddle.ajax({
 					url: "/session/login",
 					type: "POST",
@@ -76,23 +88,23 @@ define([
 						success_url: "/project"
 					})
 				})
-			},
+			};
 
-			logout: function() {
+			self.logout = function() {
 				return huddle.ajax({
 					url: "/session/logout",
 					type: "GET"
 				})
-			},
+			};
 
-			getUserRecord: function(userId) {
+			self.getUserRecord = function(userId) {
 				return huddle.ajax({
 					url: "/api/users/" + userId,
 					type: "GET"
 				})
-			},
+			};
 
-			createUser: function(email, password) { // STILL NOT WORKING!!!
+			self.createUser = function(email, password) { // STILL NOT WORKING!!!
 				return huddle.ajax({
 					url: "/session/registration",
 					type: "POST"
@@ -118,25 +130,25 @@ define([
 						})
 					})
 				})
-			},
+			};
 
-			deleteUser: function(userId) {
+			self.deleteUser = function(userId) {
 				return huddle.getUserRecord(userId).then(function(data) {
 					huddle.ajax({
 						url: "/api/users/" + userId,
 						type: "DELETE"
 					}, data.etag);
 				})
-			},
+			};
 
-			listUsers: function() {
+			self.listUsers = function() {
 				return huddle.ajax({
 					url: "/api/users?data=all",
 					type: "GET"
 				})
-			},
+			};
 
-			changePassword: function(new_password) {
+			self.changePassword = function(new_password) {
 				return huddle.ajax({
 					url: "/session/modpwrd",
 					type: "POST",
@@ -144,9 +156,9 @@ define([
 						password: new_password
 					})
 				})
-			},
+			};
 
-			modUserRecord: function(userId, patchObject) {
+			self.modUserRecord = function(userId, patchObject) {
 				var o = {};
 				o.set = typeof patchObject.set === "undefined" ? {} : patchObject.set;
 				o.unset = typeof patchObject.unset === "undefined" ? {} : patchObject.unset;
@@ -158,16 +170,16 @@ define([
 						data: JSON.stringify(o)
 					}, userRecord.etag)
 				})
-			},
+			};
 
-			listWorkshops: function() {
+			self.listWorkshops = function() {
 				return huddle.ajax({
 					url: "/api/workshops?data=all",
 					type: "GET",
 				})
-			},
+			};
 
-			listWorkshopsInProject: function(projectId) {
+			self.listWorkshopsInProject = function(projectId) {
 				return huddle.listWorkshops()
 					.then(function(projects) {
 						function compare(a, b) {
@@ -190,16 +202,16 @@ define([
 						console.log('filtered workshops: ', o);
 						return o;
 					})
-			},
+			};
 
-			listParticipants: function() {
+			self.listParticipants = function() {
 				return huddle.ajax({
 					url: "/api/participants?data=all",
 					type: "GET"
 				})
-			},
+			};
 
-			listParticipantsInWorkshop: function(workshopId) {
+			self.listParticipantsInWorkshop = function(workshopId) {
 				return huddle.listParticipants()
 					.then(function(participants) {
 						function compare(a, b) {
@@ -222,9 +234,9 @@ define([
 						console.log('filtered participants: ', o);
 						return o;
 					})
-			},
+			};
 
-			listParticipantsInProject: function(projectId) {
+			self.listParticipantsInProject = function(projectId) {
 				var workshops = [];
 				var participants = [];
 				return huddle.listWorkshopsInProject(projectId)
@@ -259,20 +271,20 @@ define([
 						console.log('filtered participants: ', o);
 						return o;
 					})
-			},
+			};
 
-			joinWorkshop: function(participantId, pin) {
+			self.joinWorkshop = function(participantId, pin) {
 
-			},
+			};
 
-			getWorkshopRecord: function(workshopId) {
+			self.getWorkshopRecord = function(workshopId) {
 				return huddle.ajax({
 					url: "/api/workshops/" + workshopId,
 					type: "GET"
 				})
-			},
+			};
 
-			modWorkshopRecord: function(workshopId, patchObject) {
+			self.modWorkshopRecord = function(workshopId, patchObject) {
 				var o = {};
 				o.set = typeof patchObject.set === "undefined" ? {} : patchObject.set;
 				o.unset = typeof patchObject.unset === "undefined" ? {} : patchObject.unset;
@@ -285,9 +297,9 @@ define([
 							data: JSON.stringify(o)
 						}, workshopRecord.etag)
 					})
-			},
+			};
 
-			startWorkshop: function(workshopId) {
+			self.startWorkshop = function(workshopId) {
 				return huddle.ajax({
 					url: "/session/workshop/" + workshopId,
 					type: "POST",
@@ -295,9 +307,9 @@ define([
 						"X-HTTP-METHOD": "START"
 					}
 				})
-			},
+			};
 
-			stopWorkshop: function(workshopId) {
+			self.stopWorkshop = function(workshopId) {
 				return huddle.ajax({
 					url: "/session/workshop/" + workshopId,
 					type: "POST",
@@ -305,9 +317,9 @@ define([
 						"X-HTTP-METHOD": "STOP"
 					}
 				})
-			},
+			};
 
-			addParticipant: function(workshopId, participantName) {
+			self.addParticipant = function(workshopId, participantName) {
 				return huddle.ajax({
 					url: "/api/participants",
 					type: "POST",
@@ -317,32 +329,32 @@ define([
 						workshop_id: workshopId
 					})
 				})
-			},
+			};
 
-			removeParticipant: function(participantId) {
+			self.removeParticipant = function(participantId) {
 				return huddle.ajax({
 					url: "/api/participants/" + participantId,
 					type: "DELETE"
 				})
-			},
+			};
 
 			// Need to create the idea of a project object
 			// example: huddle.project('project_id').addUser(user_object)
-			listProjects: function() {
+			self.listProjects = function() {
 				return huddle.ajax({
 					url: "/api/projects?data=all",
 					type: "GET",
 				})
-			},
+			};
 
-			getProjectRecord: function(projectId) {
+			self.getProjectRecord = function(projectId) {
 				return huddle.ajax({
 					url: "/api/projects/" + projectId,
 					type: "GET",
 				})
-			},
+			};
 
-			modProjectRecord: function(projectId, patchObject) {
+			self.modProjectRecord = function(projectId, patchObject) {
 				var o = {};
 				o.set = typeof patchObject.set === "undefined" ? {} : patchObject.set;
 				o.unset = typeof patchObject.unset === "undefined" ? {} : patchObject.unset;
@@ -355,9 +367,9 @@ define([
 							data: JSON.stringify(o)
 						}, projectRecord.etag)
 					})
-			},
+			};
 
-			deleteProject: function(projectId) {
+			self.deleteProject = function(projectId) {
 				return huddle.getProjectRecord(projectId)
 					.then(function(projectRecord) {
 						huddle.ajax({
@@ -365,9 +377,9 @@ define([
 							type: "DELETE"
 						}, projectRecord.etag)
 					})
-			},
+			};
 
-			createProject: function(projectTitle, projectOwner) {
+			self.createProject = function(projectTitle, projectOwner) {
 				return huddle.ajax({
 					url: "/api/projects",
 					type: "POST",
@@ -379,9 +391,9 @@ define([
 						title: projectTitle
 					})
 				})
-			},
+			};
 
-			addUsersToProject: function(projectId, arrayOfuserId, arrayOfUserRoles) {
+			self.addUsersToProject = function(projectId, arrayOfuserId, arrayOfUserRoles) {
 				var arrayOfUserRoles = typeof arrayOfUserRoles === "undefined" ? [] : arrayOfUserRoles;
 				var o = [];
 				for (var i = 0; i < arrayOfuserId.length; i++) {
@@ -398,9 +410,9 @@ define([
 					type: "POST",
 					data: JSON.stringify(o)
 				})
-			},
+			};
 
-			removeUsersFromProject: function(projectId, arrayOfuserId) {
+			self.removeUsersFromProject = function(projectId, arrayOfuserId) {
 				var o = [];
 				for (var i = 0; i < arrayOfuserId.length; i++) {
 					o.push(arrayOfuserId[i]);
@@ -413,16 +425,16 @@ define([
 					type: "POST",
 					data: JSON.stringify(o)
 				})
-			},
+			};
 
-			changeUserRolesInProject: function(projectId, arrayOfuserId, arrayOfUserRoles) {
+			self.changeUserRolesInProject = function(projectId, arrayOfuserId, arrayOfUserRoles) {
 				return huddle.removeUsersFromProject(projectId, arrayOfuserId)
 					.then(function() {
 						return huddle.addUsersToProject(projectId, arrayOfuserId, arrayOfUserRoles)
 					})
-			},
+			};
 
-			listAppsInProject: function(projectId) {
+			self.listAppsInProject = function(projectId) {
 				var finalPromise = new $.Deferred()
 				var path = '/data/' + projectId + '/apps';
 				var apps = [];
@@ -442,9 +454,9 @@ define([
 					})
 				})
 				return finalPromise.promise()
-			},
+			};
 
-			listDatasetsInProject: function(projectId) {
+			self.listDatasetsInProject = function(projectId) {
 				var finalPromise = new $.Deferred()
 				var path = '/data/' + projectId + '/datasets';
 				var apps = [];
@@ -464,31 +476,31 @@ define([
 					})
 				})
 				return finalPromise.promise()
-			},
+			};
 
-			ls: function(projectId, path) {
+			self.ls = function(projectId, path) {
 				var path = '/data/' + projectId + '/' + path;
 				return huddle.propfind(path).then(function(results) {
 					console.log(results)
 				})
-			},
+			};
 
-			read: function(projectId, path) {
+			self.read = function(projectId, path) {
 				var path = '/data/' + projectId + '/' + path;
 				return huddle.get(path).then(function(results) {
 					console.log(results)
 				})
-			},
+			};
 
-			write: function(projectId, path, data, etag) {
+			self.write = function(projectId, path, data, etag) {
 				var etag = etag || null
 				var path = '/data/' + projectId + '/' + path;
 				return huddle.put(path, data).then(function(results) {
 					console.log(results)
 				})
-			},
+			};
 
-			ajax: function(ajaxObject, etag) {
+			self.ajax = function(ajaxObject, etag) {
 
 				ajaxObject.headers = typeof ajaxObject.headers === "undefined" ? {} : ajaxObject.headers;
 				ajaxObject.headers["Accept"] = "application/json";
@@ -497,6 +509,8 @@ define([
 				if (typeof etag !== "undefined") {
 					ajaxObject.headers["If-Match"] = etag;
 				}
+				debugger;
+				ajaxObject.url = huddleHost + ajaxObject.url;
 
 				ajaxObject.dataType = 'json';
 
@@ -507,14 +521,15 @@ define([
 						console.log(data);
 						return data;
 					});
-			},
+			};
 
-			dav: dav,
+			self.dav = dav;
 
-			propfind: function(path, depth) {
+			self.propfind = function(path, depth) {
 				var depth = depth || 1
 				var promise = new $.Deferred();
-				huddle.dav.PROPFIND(path, function(status, statusText, content, headers) {
+				debugger;
+				huddle.dav.PROPFIND(huddleHost+path, function(status, statusText, content, headers) {
 					if (content !== undefined) {
 						var result = {
 							status: status,
@@ -527,11 +542,11 @@ define([
 					}
 				}, this, depth);
 				return promise.promise()
-			},
+			};
 
-			get: function(path) {
+			self.get = function(path) {
 				var promise = new $.Deferred();
-				huddle.dav.GET(path, function(status, statusText, content, headers) {
+				huddle.dav.GET(huddleHost+path, function(status, statusText, content, headers) {
 					if (content !== undefined) {
 						var result = {
 							status: status,
@@ -544,11 +559,11 @@ define([
 					}
 				}, this, 1);
 				return promise.promise()
-			},
+			};
 
-			put: function(path, data) {
+			self.put = function(path, data) {
 				var promise = new $.Deferred();
-				huddle.dav.PUT(path, data, function(status, statusText, content, headers) {
+				huddle.dav.PUT(huddleHost+path, data, function(status, statusText, content, headers) {
 					if (content !== undefined) {
 						var result = {
 							status: status,
@@ -561,11 +576,11 @@ define([
 					}
 				}, this, 1);
 				return promise.promise()
-			},
+			};
 
-			post: function(path, data) {
+			self.post = function(path, data) {
 				var promise = new $.Deferred();
-				huddle.dav.POST(path, data, function(status, statusText, content, headers) {
+				huddle.dav.POST(huddleHost+path, data, function(status, statusText, content, headers) {
 					if (content !== undefined) {
 						var result = {
 							status: status,
@@ -578,11 +593,11 @@ define([
 					}
 				}, this, 1);
 				return promise.promise()
-			},
+			};
 
-			delete: function(path) {
+			self.delete = function(path) {
 				var promise = new $.Deferred();
-				huddle.dav.DELETE(path, function(status, statusText, content, headers) {
+				huddle.dav.DELETE(huddleHost+path, function(status, statusText, content, headers) {
 					if (content !== undefined) {
 						var result = {
 							status: status,
@@ -596,8 +611,7 @@ define([
 				}, this, 1);
 				return promise.promise()
 			}
-		}
-	}());
+	}
 
-	return huddle;
+	return new Huddle();
 })
